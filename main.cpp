@@ -22,7 +22,7 @@ int main() {
     string currentDate(buffer);
 
     // Specify the file path where you want to read and save the JSON data
-    string filePath = "C:/Users/JaredM/Desktop/C++ Projects/project1/json/output.json";
+    string filePath = "C:yourfilepath";
 
     // Check if data for the current date exists
     ifstream inputFile(filePath);
@@ -30,9 +30,38 @@ int main() {
     inputFile.close(); // Close the file after reading
 
     if (currentData.find(currentDate) != std::string::npos) {
-        cout << "Data for the date " << currentDate << " already exists!" << endl;
-        return 0;
+        char userChoice;
+        cout << "Data for the date " << currentDate << " already exists! Would you like to edit the current data? (Y/N): ";
+        cin >> userChoice;
+
+        // If user doesn't want to edit, exit the program
+        if (userChoice == 'N' || userChoice == 'n') {
+            cout << "Exiting program." << endl;
+            return 0;
+        }
+
+        size_t pos = 0;
+        while ((pos = currentData.find(currentDate, pos)) != std::string::npos) {
+            size_t start = currentData.rfind('{', pos);
+            size_t end = currentData.find('}', pos);
+            if (start != std::string::npos && end != std::string::npos) {
+                // Check for newline character immediately after '}'
+                if (end + 1 < currentData.size() && currentData[end + 1] == '\n') {
+                    end++;
+                }
+                currentData.erase(start, end - start + 1);  // Erase the entire JSON object including newline
+                pos = start;  // Move the position to where the start was since the string has been altered
+            }
+            else {
+                pos++;  // If for some reason the brackets are not found, just move to the next position
+            }
+        }
+
     }
+
+        // Otherwise, continue with the existing flow of asking questions
+    
+
 
     string jsonData = "";
 
@@ -131,17 +160,16 @@ int main() {
         jsonData += "\"stretched\":\"No\"}\n";
     }
 
-    // Open the file for writing
-    ofstream outputFile(filePath, ios_base::app);
+    ofstream outputFile(filePath);
 
-    // Check if the file is opened successfully
     if (outputFile.is_open()) {
-        // Write the JSON data to the file
+        // Write the existing data minus the removed data
+        outputFile << currentData;
+
+        // Append the new data
         outputFile << jsonData;
 
-        // Close the file
         outputFile.close();
-
         cout << "Data has been saved to output.json " << endl;
     }
     else {
