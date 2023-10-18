@@ -16,15 +16,25 @@ int main() {
     time_t currentTime;
     struct tm timeInfo;
     char buffer[80];
-
     time(&currentTime);
     localtime_s(&timeInfo, &currentTime);
     strftime(buffer, sizeof(buffer), "%Y-%m-%d", &timeInfo);
-
-    std::string jsonData = "";
-
-    // Convert the date to a string
     string currentDate(buffer);
+
+    // Specify the file path where you want to read and save the JSON data
+    string filePath = "C:/Users/JaredM/Desktop/C++ Projects/project1/json/output.json";
+
+    // Check if data for the current date exists
+    ifstream inputFile(filePath);
+    string currentData((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
+    inputFile.close(); // Close the file after reading
+
+    if (currentData.find(currentDate) != std::string::npos) {
+        cout << "Data for the date " << currentDate << " already exists!" << endl;
+        return 0;
+    }
+
+    string jsonData = "";
 
     // Ask the user if they programmed today.
     cout << "Did you program today? (Y/N) " << endl;
@@ -50,7 +60,7 @@ int main() {
         jsonData += "\"programmed\":\"No\"}\n";
     }
 
-     // Ask the user if they worked out today.
+    // Ask the user if they worked out today.
     cout << "Did you workout today? (Y/N) " << endl;
     cin >> workoutToday;
 
@@ -93,9 +103,9 @@ int main() {
         jsonData += "\"price\":\"" + alcoholPrice + "\"}\n";
     }
     else {
-        cout << "\nOn " << currentDate << ", you did not drink today!" << endl;
+        cout << "\nOn " << currentDate << ", you did not drink today, Woo Hoo! you saved money and your kidneys! be proud!" << endl;
         jsonData += "{\"date\":\"" + currentDate + "\",";
-        jsonData += "\"drank alcohol\":\"No\"}\n"; 
+        jsonData += "\"drank alcohol\":\"No\"}\n";
     }
     // Ask the user if they stretched today.
     cout << "Did you stretch today? (Y/N) " << endl;
@@ -116,16 +126,13 @@ int main() {
         jsonData += "\"times stretched\":\"" + stretchTimes + "\"}\n";
     }
     else {
-        cout << "\nOn " << currentDate << ", you did not stretch today" << endl;
+        cout << "\nOn " << currentDate << ", you did not stretch today! body has left the chat to go on a vacation from you since your so bad!" << endl;
         jsonData += "{\"date\":\"" + currentDate + "\",";
         jsonData += "\"stretched\":\"No\"}\n";
     }
 
-    // Specify the file path where you want to save the JSON data
-    string filePath = "C:/Users/JaredM/Desktop/C++ Projects/Project_1_Saving_Data_to_a_JSON_File/json/output.json";
-
     // Open the file for writing
-    ofstream outputFile(filePath);
+    ofstream outputFile(filePath, ios_base::app);
 
     // Check if the file is opened successfully
     if (outputFile.is_open()) {
